@@ -1,6 +1,64 @@
+//! A [ROT13](https://en.wikipedia.org/wiki/ROT13) cipher implementation in Rust.
+//!
+//! ROT13 is a simple letter substitution cipher that replaces a letter with
+//! the 13th letter after it in the alphabet. ROT13 is a special case of the
+//! [Caesar Cipher](https://en.wikipedia.org/wiki/Caesar_cipher).
+//!
+//! # Features
+//!
+//! - Supports both uppercase and lowercase letters
+//! - Preserves non-alphabetic characters
+//! - Accepts input from both command line arguments and stdin
+//! - Implements symmetric encryption (applying ROT13 twice returns the original text)
+//!
+//! # Example
+//!
+//! Basic usage:
+//! ```
+//! # use rot13::rot13;
+//! let original = "Hello, World!";
+//! assert_eq!(rot13(original), "Uryyb, Jbeyq!");
+//! ```
+//!
+//! ROT13 is its own inverse - applying it twice returns the original text:
+//! ```
+//! # use rot13::rot13;
+//! let text = "The quick brown fox";
+//! let encoded = rot13(text);
+//! let decoded = rot13(&encoded);
+//! assert_eq!(decoded, text);
+//! ```
+//!
+//! Non-alphabetic characters remain unchanged:
+//! ```
+//! # use rot13::rot13;
+//! assert_eq!(rot13("123!@#"), "123!@#");
+//! assert_eq!(rot13("Hello, 2023!"), "Uryyb, 2023!");
+//! ```
+//!
+//! Case is preserved:
+//! ```
+//! # use rot13::rot13;
+//! assert_eq!(rot13("aBcDeF"), "nOpQrS");
+//! ```
+//!
+//! # Command Line Usage
+//!
+//! ```text
+//! $ echo "Hello, World!" | rot13
+//! Uryyb, Jbeyq!
+//! ```
+//!
+//! Or directly as an argument:
+//!
+//! ```text
+//! $ rot13 "Hello, World!"
+//! Uryyb, Jbeyq!
+//! ```
 use clap::Parser;
 use std::io::{self, Read};
 
+#[doc(hidden)]
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -8,6 +66,7 @@ struct Args {
     text: Option<String>,
 }
 
+#[doc(hidden)]
 fn read_text(text: Option<String>) -> Result<String, Box<dyn std::error::Error>> {
     match text {
         Some(text) => Ok(text),
@@ -19,6 +78,7 @@ fn read_text(text: Option<String>) -> Result<String, Box<dyn std::error::Error>>
     }
 }
 
+#[doc(hidden)]
 fn rot13(text: &str) -> String {
     const ROT13_SHIFT: u8 = 13;
     const ALPHABET_SIZE: u8 = 26;
@@ -38,6 +98,7 @@ fn rot13(text: &str) -> String {
         .collect()
 }
 
+#[doc(hidden)]
 fn main() {
     let args = Args::parse();
     match read_text(args.text) {
